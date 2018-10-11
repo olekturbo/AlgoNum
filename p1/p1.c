@@ -61,7 +61,6 @@ int main() {
 	
 	fprintf(f, "%s,%s,%s,%s,%s,%s\n", "x", "n", "Funkcja wbudowana", "Taylor", "Blad bezwzgledny", "Blad wzgledny");
 	for(int n = 1; n <= 10; n++) {
-		x+= 0.01;
 		double wynik = atan(x)*log(x+1);
 		double mojWynik = arctanOdKonca(x,n) * logarytmOdKonca(x,n);
 		fprintf(f,"%0.2lf, %d, %.20lf, %.20lf, %.20lf, %.20lf", x,n, wynik, mojWynik, bladBezwzgledny(wynik,mojWynik), bladWzgledny(wynik,mojWynik));
@@ -127,13 +126,22 @@ double arctanOdKonca(double x, int n) {
 	double wynik = 0;
 	double zmienna = 0;
 	int iteracja = 0;
+	int stala = 0;
+	
 	for(int i = n-1; i >= 0; i-=2) {
+		if(i % 2 == 0)
+			stala = i+1;
+		else
+			stala = i;
 		iteracja++;
-		zmienna = potega(x,i)/i;
-		if(iteracja % 2 != 0)
+		zmienna = potega(x,stala)/stala;
+		if(iteracja % 2 == 0)
 			zmienna = -zmienna;
 		wynik+=zmienna;
 	}
+	if(wynik < 0) 
+		wynik = -wynik;
+		
 	return wynik;
 }
 
