@@ -24,9 +24,11 @@ double logarytm(double x, int n);
 double arctan(double x, int n);
 double logarytmOdKonca(double x, int n);
 double logarytmPoprzedni(double x, int n);
+double logarytmPoprzedniOdKonca(double x, int n);
 double arctan(double x, int n);
 double arctanOdKonca(double x, int n);
 double arctanPoprzedni(double x, int n);
+double arctanPoprzedniOdKonca(double x, int n);
 double bladBezwzgledny(double x, double xz);
 double bladWzgledny(double x, double xz);
 
@@ -57,7 +59,7 @@ int main() {
 	
 	// Opcja 2
 	FILE *f2 = fopen("wyniki-2.csv", "w");
-	if (f == NULL)
+	if (f2 == NULL)
 	{
 		printf("Błąd przy otwieraniu pliku!\n");
 		exit(1);
@@ -80,7 +82,7 @@ int main() {
 	
 	// Opcja 3
 	FILE *f3 = fopen("wyniki-3.csv", "w");
-	if (f == NULL)
+	if (f3 == NULL)
 	{
 		printf("Błąd przy otwieraniu pliku!\n");
 		exit(1);
@@ -99,6 +101,28 @@ int main() {
 	}
 	
 	fclose(f3);
+	
+	// Opcja 4
+	FILE *f4 = fopen("wyniki-4.csv", "w");
+	if (f4 == NULL)
+	{
+		printf("Błąd przy otwieraniu pliku!\n");
+		exit(1);
+	}
+	
+	// Reset x
+	x = -1;
+	
+	fprintf(f4, "%s,%s,%s,%s,%s,%s\n", "x", "n", "Funkcja wbudowana", "Taylor", "Blad bezwzgledny", "Blad wzgledny");
+	for(int i = 1; i <= 200; i++) {
+		x+=0.01;
+		double wynik = atan(x) * log(x+1);
+		double mojWynik = arctanPoprzedniOdKonca(x,n) * logarytmPoprzedniOdKonca(x,n);
+		fprintf(f4,"%0.2lf, %d, %.20lf, %.20lf, %.20lf, %.20lf", x,n, wynik, mojWynik, bladBezwzgledny(wynik,mojWynik), bladWzgledny(wynik,mojWynik));
+		fprintf(f4,"\n");
+	}
+	
+	fclose(f4);
 
 	printf("Wygenerowano do plików\n");
 	
@@ -193,6 +217,44 @@ double arctanPoprzedni(double x, int n) {
 	}
 	return wynik;
 	
+}
+
+double logarytmPoprzedniOdKonca(double x, int n) {
+	double elementy[n];
+	int licznik = 0;
+	double pierwszy = x;
+	double wynik = x;
+	
+	for(int i = 2; i <= n; i++) {
+		pierwszy = pierwszy * (-1) * (i-1) * x / i;
+		elementy[licznik] = pierwszy;
+		licznik++;
+	}
+	
+	for(int i = licznik; i >= 0; i--) {
+		wynik += elementy[i];
+	}
+	
+	return wynik;
+}
+
+double arctanPoprzedniOdKonca(double x, int n) {
+	double elementy[n];
+	int licznik = 0;
+	double pierwszy = x;
+	double wynik = x;
+	
+	for(int i = 3; i <= n; i+=2) {
+		pierwszy = pierwszy * (-1) * x * x / i * (i-2);
+		elementy[licznik] = pierwszy;
+		licznik++;
+	}
+	
+	for(int i = licznik; i >= 0; i--) {
+		wynik += elementy[i];
+	}
+	
+	return wynik;
 }
 
 double bladBezwzgledny(double x, double xz) {
