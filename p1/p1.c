@@ -19,7 +19,6 @@
 // x nalezy do (-1,1)
 
 double potega(double podstawa, double wykladnik);
-double silnia(int n);
 double logarytm(double x, int n);
 double arctan(double x, int n);
 double logarytmOdKonca(double x, int n);
@@ -137,12 +136,6 @@ double potega(double podstawa, double wykladnik) {
 		wynik*=podstawa;
 	
 	return wynik;
-}
-
-double silnia(int n) {
-	if(n<2)
-		return 1;
-	return n*silnia(n-1);
 }
 
 double logarytm(double x, int n) {
