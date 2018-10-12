@@ -19,16 +19,20 @@
 // x nalezy do (-1,1)
 
 double potega(double podstawa, double wykladnik);
+double silnia(int n);
 double logarytm(double x, int n);
 double arctan(double x, int n);
 double logarytmOdKonca(double x, int n);
+double logarytmPoprzedni(double x, int n);
 double arctan(double x, int n);
 double arctanOdKonca(double x, int n);
+double arctanPoprzedni(double x, int n);
 double bladBezwzgledny(double x, double xz);
 double bladWzgledny(double x, double xz);
 
 int main() {
-	double x = 0.5;
+	double x = -1;
+	int n = 10;
 	
 	// Opcja 1
 	FILE *f = fopen("wyniki-1.csv", "w");
@@ -40,7 +44,8 @@ int main() {
 	
 	
 	fprintf(f, "%s,%s,%s,%s,%s,%s\n", "x", "n", "Funkcja wbudowana", "Taylor", "Blad bezwzgledny", "Blad wzgledny");
-	for(int n = 1; n <= 10; n++) {
+	for(int i = 1; i <= 200; i++) {
+		x+=0.01;
 		double wynik = atan(x)*log(x+1);
 		double mojWynik = arctan(x,n) * logarytm(x,n);
 		fprintf(f,"%0.2lf, %d, %.20lf, %.20lf, %.20lf, %.20lf", x,n, wynik, mojWynik, bladBezwzgledny(wynik,mojWynik), bladWzgledny(wynik,mojWynik));
@@ -58,16 +63,42 @@ int main() {
 		exit(1);
 	}
 	
+	// Reset x
+	x = -1;
 	
-	fprintf(f, "%s,%s,%s,%s,%s,%s\n", "x", "n", "Funkcja wbudowana", "Taylor", "Blad bezwzgledny", "Blad wzgledny");
-	for(int n = 1; n <= 10; n++) {
+	
+	fprintf(f2, "%s,%s,%s,%s,%s,%s\n", "x", "n", "Funkcja wbudowana", "Taylor", "Blad bezwzgledny", "Blad wzgledny");
+	for(int i = 1; i <= 200; i++) {
+		x+=0.01;
 		double wynik = atan(x)*log(x+1);
 		double mojWynik = arctanOdKonca(x,n) * logarytmOdKonca(x,n);
-		fprintf(f,"%0.2lf, %d, %.20lf, %.20lf, %.20lf, %.20lf", x,n, wynik, mojWynik, bladBezwzgledny(wynik,mojWynik), bladWzgledny(wynik,mojWynik));
-		fprintf(f,"\n");
+		fprintf(f2,"%0.2lf, %d, %.20lf, %.20lf, %.20lf, %.20lf", x,n, wynik, mojWynik, bladBezwzgledny(wynik,mojWynik), bladWzgledny(wynik,mojWynik));
+		fprintf(f2,"\n");
 	}
 	
 	fclose(f2);
+	
+	// Opcja 3
+	FILE *f3 = fopen("wyniki-3.csv", "w");
+	if (f == NULL)
+	{
+		printf("Błąd przy otwieraniu pliku!\n");
+		exit(1);
+	}
+	
+	// Reset x
+	x = -1;
+	
+	fprintf(f3, "%s,%s,%s,%s,%s,%s\n", "x", "n", "Funkcja wbudowana", "Taylor", "Blad bezwzgledny", "Blad wzgledny");
+	for(int i = 1; i <= 200; i++) {
+		x+=0.01;
+		double wynik = log(x+1) * atan(x);
+		double mojWynik = logarytmPoprzedni(x,n) * arctanPoprzedni(x,n);
+		fprintf(f3,"%0.2lf, %d, %.20lf, %.20lf, %.20lf, %.20lf", x,n, wynik, mojWynik, bladBezwzgledny(wynik,mojWynik), bladWzgledny(wynik,mojWynik));
+		fprintf(f3,"\n");
+	}
+	
+	fclose(f3);
 
 	printf("Wygenerowano do plików\n");
 	
@@ -82,6 +113,12 @@ double potega(double podstawa, double wykladnik) {
 		wynik*=podstawa;
 	
 	return wynik;
+}
+
+double silnia(int n) {
+	if(n<2)
+		return 1;
+	return n*silnia(n-1);
 }
 
 double logarytm(double x, int n) {
@@ -126,23 +163,36 @@ double arctanOdKonca(double x, int n) {
 	double wynik = 0;
 	double zmienna = 0;
 	int iteracja = 0;
-	int stala = 0;
-	
 	for(int i = n-1; i >= 0; i-=2) {
-		if(i % 2 == 0)
-			stala = i+1;
-		else
-			stala = i;
 		iteracja++;
-		zmienna = potega(x,stala)/stala;
+		zmienna = potega(x,i)/i;
 		if(iteracja % 2 == 0)
 			zmienna = -zmienna;
 		wynik+=zmienna;
 	}
-	if(wynik < 0) 
-		wynik = -wynik;
-		
 	return wynik;
+}
+
+double logarytmPoprzedni(double x, int n) {
+	double pierwszy = x;
+	double wynik = x;
+	for(int i = 2; i <= n; i++) {
+		pierwszy = pierwszy * (-1) * (i-1) * x / i;
+		wynik += pierwszy;
+	}
+	return wynik;
+	
+}
+
+double arctanPoprzedni(double x, int n) {
+	double pierwszy = x;
+	double wynik = x;
+	for(int i = 3; i <= n; i+=2) {
+		pierwszy = pierwszy * (-1) * x * x / i * (i-2);
+		wynik += pierwszy;
+	}
+	return wynik;
+	
 }
 
 double bladBezwzgledny(double x, double xz) {
